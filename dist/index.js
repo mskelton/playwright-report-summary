@@ -31956,7 +31956,7 @@ exports.createPullRequestReview = createPullRequestReview;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.renderIcon = exports.icons = void 0;
-const iconSize = 14;
+const iconSize = 11;
 const defaultIconStyle = 'octicons';
 exports.icons = {
     octicons: {
@@ -32058,6 +32058,7 @@ async function report() {
     const customInfo = (0, core_1.getInput)('custom-info');
     const iconStyle = (0, core_1.getInput)('icon-style') || 'octicons';
     const jobSummary = (0, core_1.getInput)('job-summary') ? (0, core_1.getBooleanInput)('job-summary') : false;
+    const testCommand = (0, core_1.getInput)('test-command');
     (0, core_1.debug)(`Report file: ${reportFile}`);
     (0, core_1.debug)(`Report url: ${reportUrl || '(none)'}`);
     (0, core_1.debug)(`Report tag: ${reportTag || '(none)'}`);
@@ -32110,7 +32111,8 @@ async function report() {
         title: commentTitle,
         customInfo,
         reportUrl,
-        iconStyle
+        iconStyle,
+        testCommand
     });
     const prefix = `<!-- playwright-report-github-action -- ${reportTag} -->`;
     const body = `${prefix}\n\n${summary}`;
@@ -32292,7 +32294,7 @@ function buildTitle(...paths) {
     return { title, path };
 }
 exports.buildTitle = buildTitle;
-function renderReportSummary(report, { commit, message, title, customInfo, reportUrl, iconStyle } = {}) {
+function renderReportSummary(report, { commit, message, title, customInfo, reportUrl, iconStyle, testCommand } = {}) {
     const { duration, failed, passed, flaky, skipped } = report;
     const icon = (symbol) => (0, icons_1.renderIcon)(symbol, { iconStyle });
     const paragraphs = [];
@@ -32323,9 +32325,9 @@ function renderReportSummary(report, { commit, message, title, customInfo, repor
         const tests = report[status];
         if (tests.length) {
             const summary = `${(0, formatting_1.upperCaseFirst)(status)} tests`;
-            const list = tests.map((test) => test.title).join('\n  ');
+            const content = renderTestList(tests, status, testCommand);
             const open = status === 'failed';
-            return (0, formatting_1.renderAccordion)(summary, list, { open });
+            return (0, formatting_1.renderAccordion)(summary, content, { open });
         }
     });
     paragraphs.push(details
@@ -32338,6 +32340,15 @@ function renderReportSummary(report, { commit, message, title, customInfo, repor
         .join('\n\n');
 }
 exports.renderReportSummary = renderReportSummary;
+function renderTestList(tests, status, testCommand) {
+    const list = tests.map((test) => `  ${test.title}`).join('\n');
+    if (!testCommand) {
+        return list;
+    }
+    const title = `**Copy this command to run ${status} tests:**`;
+    const testIds = tests.map((test) => `${test.file}:${test.line}`).join(' ');
+    return `${list}\n\n${title}\n\n${testCommand} ${testIds}`;
+}
 function getTotalDuration(report, results) {
     let duration = 0;
     let started = new Date();
