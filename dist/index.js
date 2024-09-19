@@ -31831,7 +31831,7 @@ function wrappy (fn, cb) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.n = exports.upperCaseFirst = exports.formatDuration = exports.renderAccordion = exports.renderMarkdownTable = void 0;
+exports.n = exports.upperCaseFirst = exports.formatDuration = exports.renderCodeBlock = exports.renderAccordion = exports.renderMarkdownTable = void 0;
 function renderMarkdownTable(rows, headers = []) {
     if (!rows.length) {
         return '';
@@ -31847,6 +31847,10 @@ function renderAccordion(summary, content, { open = false } = {}) {
     return `<details ${open ? 'open' : ''}>${summary}\n\n${content.trim()}\n\n</details>`;
 }
 exports.renderAccordion = renderAccordion;
+function renderCodeBlock(code, lang = '') {
+    return `\`\`\`${lang}\n${code}\n\`\`\``;
+}
+exports.renderCodeBlock = renderCodeBlock;
 function formatDuration(milliseconds) {
     const SECOND = 1000;
     const MINUTE = 60 * SECOND;
@@ -31956,7 +31960,7 @@ exports.createPullRequestReview = createPullRequestReview;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.renderIcon = exports.icons = void 0;
-const iconSize = 11;
+const iconSize = 14;
 const defaultIconStyle = 'octicons';
 exports.icons = {
     octicons: {
@@ -32347,7 +32351,8 @@ function renderTestList(tests, status, testCommand) {
     }
     const title = `**Copy this command to run ${status} tests:**`;
     const testIds = tests.map((test) => `${test.file}:${test.line}`).join(' ');
-    return `${list}\n\n${title}\n\n${testCommand} ${testIds}`;
+    const command = `${testCommand} ${testIds}`;
+    return `${list}\n\n${title}\n\n${(0, formatting_1.renderCodeBlock)(command)}`;
 }
 function getTotalDuration(report, results) {
     let duration = 0;
