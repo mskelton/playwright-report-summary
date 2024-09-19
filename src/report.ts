@@ -74,6 +74,7 @@ interface ReportRenderOptions {
 	customInfo?: string
 	reportUrl?: string
 	iconStyle?: keyof typeof icons
+	testCommand?: string
 }
 
 export function isValidReport(report: unknown): report is JSONReport {
@@ -183,7 +184,7 @@ export function buildTitle(...paths: string[]): { title: string; path: string[] 
 
 export function renderReportSummary(
 	report: ReportSummary,
-	{ commit, message, title, customInfo, reportUrl, iconStyle }: ReportRenderOptions = {}
+	{ commit, message, title, customInfo, reportUrl, iconStyle, testCommand }: ReportRenderOptions = {}
 ): string {
 	const { duration, failed, passed, flaky, skipped } = report
 	const icon = (symbol: string): string => renderIcon(symbol, { iconStyle })
@@ -227,9 +228,9 @@ export function renderReportSummary(
 		const tests = report[status]
 		if (tests.length) {
 			const summary = `${upperCaseFirst(status)} tests`
-			const list = tests.map((test) => test.title).join('\n  ')
+			const content = renderTestList(tests, status, testCommand)
 			const open = status === 'failed'
-			return renderAccordion(summary, list, { open })
+			return renderAccordion(summary, content, { open })
 		}
 	})
 	paragraphs.push(
@@ -243,6 +244,18 @@ export function renderReportSummary(
 		.map((p) => p.trim())
 		.filter(Boolean)
 		.join('\n\n')
+}
+
+function renderTestList(tests: TestSummary[], status: string, testCommand: string | undefined) {
+	const list = tests.map((test) => `  ${test.title}`).join('\n')
+	if (!testCommand) {
+		return list
+	}
+
+	const title = `**Copy this command to run ${status} tests:**`
+	const testIds = tests.map((test) => `${test.file}:${test.line}`).join(' ')
+
+	return `${list}\n\n${title}\n\n${testCommand} ${testIds}`
 }
 
 function getTotalDuration(report: JSONReport, results: TestResultSummary[]): { duration: number; started: Date } {
