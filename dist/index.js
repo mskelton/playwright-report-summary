@@ -32072,7 +32072,6 @@ async function report() {
     let sha = github_1.context.sha;
     let pr = null;
     let commitUrl;
-    console.log('payload', payload);
     const octokit = (0, github_1.getOctokit)(token);
     switch (eventName) {
         case 'push':
@@ -32336,7 +32335,7 @@ function renderReportSummary(report, { commit, commitUrl, message, title, custom
         const tests = report[status];
         if (tests.length) {
             const summary = `${(0, formatting_1.upperCaseFirst)(status)} tests`;
-            const content = renderTestList(tests, status, testCommand);
+            const content = renderTestList(tests, status !== 'skipped' ? testCommand : undefined);
             const open = status === 'failed';
             return (0, formatting_1.renderAccordion)(summary, content, { open });
         }
@@ -32351,15 +32350,14 @@ function renderReportSummary(report, { commit, commitUrl, message, title, custom
         .join('\n\n');
 }
 exports.renderReportSummary = renderReportSummary;
-function renderTestList(tests, status, testCommand) {
+function renderTestList(tests, testCommand) {
     const list = tests.map((test) => `  ${test.title}`).join('\n');
     if (!testCommand) {
         return list;
     }
-    const title = `**Copy this command to run ${status} tests:**`;
     const testIds = tests.map((test) => `${test.file}:${test.line}`).join(' ');
     const command = `${testCommand} ${testIds}`;
-    return `${list}\n\n${title}\n\n${(0, formatting_1.renderCodeBlock)(command)}`;
+    return `${list}\n\n${(0, formatting_1.renderCodeBlock)(command)}`;
 }
 function getTotalDuration(report, results) {
     let duration = 0;

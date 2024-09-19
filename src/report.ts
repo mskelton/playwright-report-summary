@@ -232,7 +232,7 @@ export function renderReportSummary(
 		const tests = report[status]
 		if (tests.length) {
 			const summary = `${upperCaseFirst(status)} tests`
-			const content = renderTestList(tests, status, testCommand)
+			const content = renderTestList(tests, status !== 'skipped' ? testCommand : undefined)
 			const open = status === 'failed'
 			return renderAccordion(summary, content, { open })
 		}
@@ -250,17 +250,16 @@ export function renderReportSummary(
 		.join('\n\n')
 }
 
-function renderTestList(tests: TestSummary[], status: string, testCommand: string | undefined) {
+function renderTestList(tests: TestSummary[], testCommand: string | undefined) {
 	const list = tests.map((test) => `  ${test.title}`).join('\n')
 	if (!testCommand) {
 		return list
 	}
 
-	const title = `**Copy this command to run ${status} tests:**`
 	const testIds = tests.map((test) => `${test.file}:${test.line}`).join(' ')
 	const command = `${testCommand} ${testIds}`
 
-	return `${list}\n\n${title}\n\n${renderCodeBlock(command)}`
+	return `${list}\n\n${renderCodeBlock(command)}`
 }
 
 function getTotalDuration(report: JSONReport, results: TestResultSummary[]): { duration: number; started: Date } {

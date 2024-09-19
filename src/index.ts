@@ -68,7 +68,6 @@ export async function report(): Promise<void> {
 	let sha: string = context.sha
 	let pr: number | null = null
 	let commitUrl: string | undefined
-	console.log('payload', payload)
 
 	const octokit = getOctokit(token)
 
