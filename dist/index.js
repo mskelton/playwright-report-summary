@@ -32078,6 +32078,7 @@ async function report() {
         case 'push':
             ref = payload.ref;
             sha = payload.after;
+            commitUrl = (0, report_1.getCommitUrl)(payload.repository?.html_url, sha);
             console.log(`Commit pushed onto ${ref} (${sha})`);
             break;
         case 'pull_request':
@@ -32085,6 +32086,7 @@ async function report() {
             ref = payload.pull_request?.base?.ref;
             sha = payload.pull_request?.head?.sha;
             pr = issueNumber;
+            commitUrl = (0, report_1.getCommitUrl)(payload.repository?.html_url, sha);
             console.log(`PR #${pr} targeting ${ref} (${sha})`);
             break;
         case 'issue_comment':
@@ -32200,7 +32202,7 @@ if (process.env.GITHUB_ACTIONS === 'true') {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.renderReportSummary = exports.buildTitle = exports.parseReportSuites = exports.parseReportFiles = exports.parseReport = exports.makeReport = exports.isValidReport = void 0;
+exports.getCommitUrl = exports.renderReportSummary = exports.buildTitle = exports.parseReportSuites = exports.parseReportFiles = exports.parseReport = exports.makeReport = exports.isValidReport = void 0;
 const core_1 = __nccwpck_require__(2186);
 const formatting_1 = __nccwpck_require__(9598);
 const icons_1 = __nccwpck_require__(6975);
@@ -32377,6 +32379,10 @@ function getTotalDuration(report, results) {
     }
     return { duration, started };
 }
+function getCommitUrl(repoUrl, sha) {
+    return repoUrl ? `${repoUrl}/commit/${sha}` : undefined;
+}
+exports.getCommitUrl = getCommitUrl;
 
 
 /***/ }),
