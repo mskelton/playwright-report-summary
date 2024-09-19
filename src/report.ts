@@ -280,3 +280,7 @@ function getTotalDuration(report: JSONReport, results: TestResultSummary[]): { d
 	}
 	return { duration, started }
 }
+
+export function getCommitUrl(repoUrl: string | undefined, sha: string) {
+	return repoUrl ? `${repoUrl}/commit/${sha}` : undefined
+}

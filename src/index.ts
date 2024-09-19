@@ -12,7 +12,7 @@ import {
 } from '@actions/core'
 import { context, getOctokit } from '@actions/github'
 import { fileExists, readFile } from './fs'
-import { parseReport, renderReportSummary } from './report'
+import { parseReport, renderReportSummary, getCommitUrl } from './report'
 import {
 	getIssueComments,
 	createIssueComment,
@@ -76,6 +76,7 @@ export async function report(): Promise<void> {
 		case 'push':
 			ref = payload.ref
 			sha = payload.after
+			commitUrl = getCommitUrl(payload.repository?.html_url, sha)
 			console.log(`Commit pushed onto ${ref} (${sha})`)
 			break
 
@@ -84,6 +85,7 @@ export async function report(): Promise<void> {
 			ref = payload.pull_request?.base?.ref
 			sha = payload.pull_request?.head?.sha
 			pr = issueNumber
+			commitUrl = getCommitUrl(payload.repository?.html_url, sha)
 			console.log(`PR #${pr} targeting ${ref} (${sha})`)
 			break
 
