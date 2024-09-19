@@ -67,7 +67,7 @@ interface TestResultSummary {
 	started: Date
 }
 
-interface ReportRenderOptions {
+export interface ReportRenderOptions {
 	commit?: string
 	commitUrl?: string
 	message?: string

@@ -5,6 +5,7 @@
 import { expect } from '@jest/globals'
 import { readFile } from '../src/fs'
 import {
+	ReportRenderOptions,
 	ReportSummary,
 	buildTitle,
 	isValidReport,
@@ -138,20 +139,52 @@ describe('parseReport', () => {
 })
 
 describe('renderReportSummary', () => {
-	const renderOptions = {
-		title: 'Test Report',
-		reportUrl: 'https://example.com/report',
-		customInfo: 'For more information, see our [documentation](https://example.com/docs)',
-		commit: '1234567'
-	}
-	const getReportSummary = async (): Promise<string> =>
+	const getReportSummary = async (renderOptions: ReportRenderOptions): Promise<string> =>
 		renderReportSummary(parseReport(await getReport()), renderOptions)
+
 	it('returns a string', async () => {
-		const summary = await getReportSummary()
+		const summary = await getReportSummary({
+			title: 'Test Report',
+			reportUrl: 'https://example.com/report',
+			customInfo: 'For more information, see our [documentation](https://example.com/docs)',
+			commit: '1234567'
+		})
+
 		expect(typeof summary === 'string').toBe(true)
 	})
+
 	it('matches snapshot', async () => {
-		const summary = await getReportSummary()
+		const summary = await getReportSummary({
+			title: 'Test Report',
+			reportUrl: 'https://example.com/report',
+			customInfo: 'For more information, see our [documentation](https://example.com/docs)',
+			commit: '1234567'
+		})
+
+		expect(summary).toMatchSnapshot()
+	})
+
+	it('with a test command', async () => {
+		const summary = await getReportSummary({
+			title: 'Test Report',
+			reportUrl: 'https://example.com/report',
+			customInfo: 'For more information, see our [documentation](https://example.com/docs)',
+			commit: '1234567',
+			testCommand: 'yarn test:e2e'
+		})
+
+		expect(summary).toMatchSnapshot()
+	})
+
+	it('with a commit url', async () => {
+		const summary = await getReportSummary({
+			title: 'Test Report',
+			reportUrl: 'https://example.com/report',
+			customInfo: 'For more information, see our [documentation](https://example.com/docs)',
+			commit: '1234567',
+			commitUrl: 'https://github.com/daun/playwright-report-summary/commit/1234567'
+		})
+
 		expect(summary).toMatchSnapshot()
 	})
 })
