@@ -1,7 +1,7 @@
 type IconSet = Record<string, string>
 type IconColors = Record<string, string>
 
-const iconSize = 11
+const iconSize = 14
 const defaultIconStyle = 'octicons'
 
 export const icons: Record<string, IconSet> = {

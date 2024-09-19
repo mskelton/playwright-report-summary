@@ -7,7 +7,7 @@ import {
 } from '@playwright/test/reporter'
 import { debug } from '@actions/core'
 
-import { formatDuration, n, renderAccordion, upperCaseFirst } from './formatting'
+import { formatDuration, n, renderAccordion, renderCodeBlock, upperCaseFirst } from './formatting'
 import { icons, renderIcon } from './icons'
 
 export interface ReportSummary {
@@ -254,8 +254,9 @@ function renderTestList(tests: TestSummary[], status: string, testCommand: strin
 
 	const title = `**Copy this command to run ${status} tests:**`
 	const testIds = tests.map((test) => `${test.file}:${test.line}`).join(' ')
+	const command = `${testCommand} ${testIds}`
 
-	return `${list}\n\n${title}\n\n${testCommand} ${testIds}`
+	return `${list}\n\n${title}\n\n${renderCodeBlock(command)}`
 }
 
 function getTotalDuration(report: JSONReport, results: TestResultSummary[]): { duration: number; started: Date } {
