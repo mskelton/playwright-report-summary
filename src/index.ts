@@ -67,6 +67,8 @@ export async function report(): Promise<void> {
 	let ref: string = context.ref
 	let sha: string = context.sha
 	let pr: number | null = null
+	let commitUrl: string | undefined
+	console.log('payload', payload)
 
 	const octokit = getOctokit(token)
 
@@ -117,6 +119,7 @@ export async function report(): Promise<void> {
 	const report = parseReport(data)
 	const summary = renderReportSummary(report, {
 		commit: sha,
+		commitUrl,
 		title: commentTitle,
 		customInfo,
 		reportUrl,

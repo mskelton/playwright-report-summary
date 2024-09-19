@@ -32071,6 +32071,8 @@ async function report() {
     let ref = github_1.context.ref;
     let sha = github_1.context.sha;
     let pr = null;
+    let commitUrl;
+    console.log('payload', payload);
     const octokit = (0, github_1.getOctokit)(token);
     switch (eventName) {
         case 'push':
@@ -32112,6 +32114,7 @@ async function report() {
     const report = (0, report_1.parseReport)(data);
     const summary = (0, report_1.renderReportSummary)(report, {
         commit: sha,
+        commitUrl,
         title: commentTitle,
         customInfo,
         reportUrl,
@@ -32298,7 +32301,7 @@ function buildTitle(...paths) {
     return { title, path };
 }
 exports.buildTitle = buildTitle;
-function renderReportSummary(report, { commit, message, title, customInfo, reportUrl, iconStyle, testCommand } = {}) {
+function renderReportSummary(report, { commit, commitUrl, message, title, customInfo, reportUrl, iconStyle, testCommand } = {}) {
     const { duration, failed, passed, flaky, skipped } = report;
     const icon = (symbol) => (0, icons_1.renderIcon)(symbol, { iconStyle });
     const paragraphs = [];
@@ -32314,12 +32317,14 @@ function renderReportSummary(report, { commit, message, title, customInfo, repor
     paragraphs.push(tests.filter(Boolean).join('  \n'));
     // Stats about test run
     paragraphs.push(`#### Details`);
+    const shortCommit = commit?.slice(0, 7);
+    const commitText = commitUrl ? `[${shortCommit}](${commitUrl})` : shortCommit;
     const stats = [
         reportUrl ? `${icon('report')}  [Open report ↗︎](${reportUrl})` : '',
         `${icon('stats')}  ${report.tests.length} ${(0, formatting_1.n)('test', report.tests.length)} across ${report.suites.length} ${(0, formatting_1.n)('suite', report.suites.length)}`,
         `${icon('duration')}  ${duration ? (0, formatting_1.formatDuration)(duration) : 'unknown'}`,
-        commit && message ? `${icon('commit')}  ${message} (${commit.slice(0, 7)})` : '',
-        commit && !message ? `${icon('commit')}  ${commit.slice(0, 7)}` : '',
+        commitText && message ? `${icon('commit')}  ${message} (${commitText})` : '',
+        commitText && !message ? `${icon('commit')}  ${commitText}` : '',
         customInfo ? `${icon('info')}  ${customInfo}` : ''
     ];
     paragraphs.push(stats.filter(Boolean).join('  \n'));

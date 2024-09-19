@@ -69,6 +69,7 @@ interface TestResultSummary {
 
 interface ReportRenderOptions {
 	commit?: string
+	commitUrl?: string
 	message?: string
 	title?: string
 	customInfo?: string
@@ -184,7 +185,7 @@ export function buildTitle(...paths: string[]): { title: string; path: string[] 
 
 export function renderReportSummary(
 	report: ReportSummary,
-	{ commit, message, title, customInfo, reportUrl, iconStyle, testCommand }: ReportRenderOptions = {}
+	{ commit, commitUrl, message, title, customInfo, reportUrl, iconStyle, testCommand }: ReportRenderOptions = {}
 ): string {
 	const { duration, failed, passed, flaky, skipped } = report
 	const icon = (symbol: string): string => renderIcon(symbol, { iconStyle })
@@ -208,6 +209,9 @@ export function renderReportSummary(
 
 	paragraphs.push(`#### Details`)
 
+	const shortCommit = commit?.slice(0, 7)
+	const commitText = commitUrl ? `[${shortCommit}](${commitUrl})` : shortCommit
+
 	const stats = [
 		reportUrl ? `${icon('report')}  [Open report ↗︎](${reportUrl})` : '',
 		`${icon('stats')}  ${report.tests.length} ${n('test', report.tests.length)} across ${report.suites.length} ${n(
@@ -215,8 +219,8 @@ export function renderReportSummary(
 			report.suites.length
 		)}`,
 		`${icon('duration')}  ${duration ? formatDuration(duration) : 'unknown'}`,
-		commit && message ? `${icon('commit')}  ${message} (${commit.slice(0, 7)})` : '',
-		commit && !message ? `${icon('commit')}  ${commit.slice(0, 7)}` : '',
+		commitText && message ? `${icon('commit')}  ${message} (${commitText})` : '',
+		commitText && !message ? `${icon('commit')}  ${commitText}` : '',
 		customInfo ? `${icon('info')}  ${customInfo}` : ''
 	]
 	paragraphs.push(stats.filter(Boolean).join('  \n'))
